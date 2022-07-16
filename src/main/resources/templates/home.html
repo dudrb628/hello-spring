@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Page</title>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<h2>멤버 생성</h2>
+<input id="id" type="text" placeholder="id"/>
+<input id="pw" type="text" placeholder="pw" />
+<button type="button"
+        th:onclick="saveMember()">생성</button>
+
+<button type="button"
+        th:onclick="getAllMember()">전체 멤버 가져오기</button>
+
+
+<script th:inline="javascript"> // 4.
+function saveMember() { // 7.
+    $.ajax({
+        url : "/api/saveMember",      // 컨트롤러에서 대기중인 URL 주소이다.
+        type : "POST",            // HTTP method type(GET, POST) 형식이다.
+        contentType:"application/json",
+        data : JSON.stringify(
+            {
+                "memberId" : $("#id").val(),
+                "password" : $("#pw").val()
+            }
+        ),            // Json 형식의 데이터이다.
+        success : function(res){ // 비동기통신의 성공일경우 success콜백으로 들어옵니다. 'res'는 응답받은 데이터이다.
+            // 응답코드 > 0000
+            console.log(res);
+        },
+        error : function(XMLHttpRequest, textStatus, errorThrown){ // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            debugger;
+            alert("통신 실패.")
+        }
+    });
+}
+
+function getAllMember() {
+    $.ajax({
+        type : "GET",            // HTTP method type(GET, POST) 형식이다.
+        url : "api/findAllMember",      // 컨트롤러에서 대기중인 URL 주소이다.
+        success : function(res){ // 비동기통신의 성공일경우 success콜백으로 들어옵니다. 'res'는 응답받은 데이터이다.
+            debugger;
+            $("#memberListUl").remove();
+            var memberHTML = "";
+            memberHTML += '<ul id="memberListUl">'
+            res.forEach(member => {
+                memberHTML += "<li>";
+                memberHTML += "<strong>";
+                memberHTML += member.memberId;
+                memberHTML += "</strong>";
+                memberHTML += " - ";
+                memberHTML += "<strong>";
+                memberHTML += member.password;
+                memberHTML += "</strong>";
+                memberHTML += "</li>";
+            });
+            memberHTML += "</ul>"
+
+            $("body").append(memberHTML);
+
+        },
+        error : function(XMLHttpRequest, textStatus, errorThrown){ // 비동기 통신이 실패할경우 error 콜백으로 들어옵니다.
+            alert("통신 실패.")
+        }
+    });
+}
+</script>
+</body>
+</html>
